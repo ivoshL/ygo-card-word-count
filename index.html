@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Yu-Gi-Oh! Card Word Count</title>
+	<style type="text/css">
+		table {
+		  border-collapse: collapse;
+		}
+
+		table, td, th {
+		  border: 1px solid black;
+		}
+
+		th {
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<table id="cards">
+		<tr>
+			<th>Word Count</th>
+			<th>Name</th>
+			<th>Pendulum Text</th>
+			<th>Text</th>
+		</tr>
+	</table>
+	<p id="loading">Loading table contents...</p>
+	<script type="text/javascript">
+		function loadJSON(url, callback) {   
+			let xobj = new XMLHttpRequest();
+				xobj.overrideMimeType("application/json");
+			xobj.open('GET', url, true);
+			xobj.onreadystatechange = function () {
+				if (xobj.readyState == 4 && xobj.status == "200") {
+					callback(xobj.responseText);
+				}
+			};
+			xobj.send(null);  
+		}
+ 
+
+
+		let cardsTable = document.getElementById('cards');
+		loadJSON('output.json', (res) => {
+			let cards = JSON.parse(res);
+			for (card of cards){
+				let tr = document.createElement('tr');
+				let wordCount = document.createElement('td');
+				let name = document.createElement('td');
+				let pendulumText = document.createElement('td');
+				let text = document.createElement('td');
+				
+				wordCount.textContent = card.word_count;
+				name.innerHTML = `<a href="${card.url}">${card.name}</a>`;
+				pendulumText.textContent = card.pendulum_text;
+				text.textContent = card.text;
+
+				tr.appendChild(wordCount);
+				tr.appendChild(name);
+				tr.appendChild(pendulumText);
+				tr.appendChild(text);
+
+				cardsTable.appendChild(tr);
+			}
+			document.getElementById('loading').remove();
+			document.querySelector('th').click();
+		})
+	</script>
+<script type="text/javascript">
+	const getCellValue = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+	const comparer = (idx, asc) => (a, b) => ((v1, v2) => 
+	    v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+	    )(getCellValue(asc ? a : b, idx), getCellValue(asc ? b : a, idx));
+
+	document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+	    const table = th.closest('table');
+	    Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
+	        .sort(comparer(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+	        .forEach(tr => table.appendChild(tr) );
+	})));
+</script>
+
+
+
+</body>
+</html>
