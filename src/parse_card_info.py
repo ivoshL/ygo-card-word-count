@@ -6,11 +6,11 @@ import json
 class Card():
     def __init__(self, card: box_list_element):
         self.name = card.find(class_='box_card_name').get_text().strip()
-        self.text = card.find(class_='box_card_text').get_text().strip()
+        self.text = card.find(class_='box_card_text').get_text(separator='\n').strip()
 
         self.pendulum_text = card.find(class_='box_card_pen_effect')
         if self.pendulum_text:
-            self.pendulum_text = self.pendulum_text.get_text().strip()
+            self.pendulum_text = self.pendulum_text.get_text(separator='\n').strip()
         else:
             self.pendulum_text = ''
 
